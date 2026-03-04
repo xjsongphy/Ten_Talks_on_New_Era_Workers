@@ -186,7 +186,7 @@ class CourseWatcher:
         duration = video_info.get('duration', 0)
         colors.print_success(f"视频已就绪 (总时长: {format_time(duration)})")
 
-        # 开始播放视频（使用Selenium点击播放按钮，避免浏览器自动播放限制）
+        # 开始播放视频（使用JavaScript点击播放按钮，避免元素不可交互问题）
         if video_info.get('paused', True):
             # 先注入反后台暂停脚本
             self.send_command('execute_script', {
@@ -195,10 +195,17 @@ class CourseWatcher:
                     Object.defineProperty(document, 'visibilityState', { get: () => 'visible' });
                 '''
             })
-            # 用Selenium查找并点击播放按钮
-            result = self.send_command('find', {'selector': '.xgplayer-start'})
-            if result and result['data']['count'] > 0:
-                self.send_command('click', {'index': 0})
+            # 用JavaScript点击播放按钮（不受元素可见性影响）
+            self.send_command('execute_script', {
+                'script': '''
+                    var startBtn = document.querySelector('.xgplayer-start');
+                    if (startBtn) {
+                        startBtn.click();
+                        return 'Clicked play button';
+                    }
+                    return 'Play button not found';
+                '''
+            })
             time.sleep(2)
 
         # 启动保持活跃的定时器

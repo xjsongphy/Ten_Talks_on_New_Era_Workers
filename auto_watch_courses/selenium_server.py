@@ -170,12 +170,21 @@ def execute():
             }
 
         elif cmd == 'click':
-            # 点击元素
+            # 点击元素（添加滚动到可见和错误处理）
             index = params.get('index', 0)
             if 0 <= index < len(last_found_elements):
                 elem = last_found_elements[index]
                 log(f"点击元素 [{index}]")
-                elem.click()
+                try:
+                    # 滚动到元素可见
+                    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", elem)
+                    time.sleep(0.5)
+                    # 尝试点击
+                    elem.click()
+                except Exception as e:
+                    # 如果常规点击失败，使用JavaScript点击
+                    log(f"常规点击失败，使用JavaScript点击: {e}")
+                    driver.execute_script("arguments[0].click();", elem)
                 time.sleep(2)
                 save_page_html()
                 result['data'] = {
