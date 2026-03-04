@@ -75,7 +75,7 @@ class CourseWatcher:
 
     def get_course_list(self):
         """获取课程列表"""
-        print(f"\n📋 正在获取课程列表...")
+        colors.print_step("正在获取课程列表...")
 
         # 点击课程目录标签
         result = self.send_command('execute_script', {
@@ -140,14 +140,13 @@ class CourseWatcher:
         """观看单个视频"""
         course_num = self.progress['current_course'] + 1
         print()
-        print("=" * 70)
-        print(f"  开始观看第 {course_num}/10 讲")
-        print("=" * 70)
-        print(f"\n📺 {course.get('title', '')}")
-        print(f"⏱️  视频时长: {course.get('duration', '')}")
-
-        # 点击课程视频
-        print(f"\n⏳ 正在打开视频...", flush=True)
+        print("━" * 70)
+        print(f"  📺 开始观看第 {course_num}/10 讲")
+        print("━" * 70)
+        print(f"  📺 {course.get('title', '')}")
+        print(f"  ⏱️  视频时长: {course.get('duration', '')}")
+        print()
+        colors.print_info("正在打开视频...")
         result = self.send_command('execute_script', {
             'script': f'''
                 var nodes = document.querySelectorAll('.el-tree-node .el-tree-node__content');
@@ -254,7 +253,9 @@ class CourseWatcher:
         check_interval = 30  # 每30秒检查一次
         total_seconds = int(duration)
 
-        print(f"\n▶️  开始播放... (支持后台播放)\n")
+        print()
+        colors.print_info("▶️  开始播放（支持后台播放）")
+        print()
 
         while elapsed < total_seconds:
             time.sleep(check_interval)
@@ -331,26 +332,26 @@ class CourseWatcher:
 
         self.save_progress()
         print()
-        colors.print_success("=" * 70)
-        colors.print_success(f"  ✓ 第 {course_num} 讲观看完成！")
-        colors.print_success("=" * 70)
+        print("━" * 70)
+        colors.print_success(f"✓ 第 {course_num} 讲观看完成！")
+        print("━" * 70)
         print()
 
         return True
 
     def run(self):
         """主运行流程"""
-        print("=" * 70)
-        print("        自动观看网课脚本 - 支持断点续看")
-        print("=" * 70)
-        print(f"🕐 开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("━" * 70)
+        print("  🏠 自动观看网课脚本 - 支持断点续看")
+        print("━" * 70)
 
         # 检查是否继续上次的进度
         start_course = self.progress['current_course']
         if start_course > 0:
-            print(f"\n📂 断点续看模式")
-            print(f"   从第 {start_course + 1} 讲开始")
-            print(f"   已完成: {len(self.progress.get('completed_courses', []))} 讲")
+            print()
+            colors.print_info(f"断点续看模式：从第 {start_course + 1} 讲开始")
+            colors.print_info(f"已完成 {len(self.progress.get('completed_courses', []))} 讲")
+            print()
 
         try:
             # 获取课程列表
@@ -376,17 +377,15 @@ class CourseWatcher:
             # 检查是否全部完成
             if self.progress['current_course'] >= len(courses):
                 print()
-                colors.print_success("╔════════════════════════════════════════════════════════════╗")
-                colors.print_success("║           🎉 全部课程观看完成！🎉            ║")
-                colors.print_success("╚════════════════════════════════════════════════════════════╝")
-                print(f"🕐 完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                print("━" * 70)
+                colors.print_success("🎉 全部课程观看完成！")
                 colors.print_success(f"✓ 完成课程数: {len(self.progress.get('completed_courses', []))} / {len(courses)}")
+                print("━" * 70)
 
         except KeyboardInterrupt:
             print()
-            colors.print_label("[中断] ")
-            print("用户手动中断")
-            print(f"💾 进度已保存，下次可以继续")
+            colors.print_warning("用户手动中断")
+            colors.print_info("进度已保存，下次可以继续")
             self.save_progress()
         except Exception as e:
             colors.print_error(f"[错误] 发生异常: {e}")

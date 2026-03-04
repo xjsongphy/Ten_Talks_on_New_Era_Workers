@@ -37,33 +37,26 @@ def do_login():
     print("=" * 60)
     print("    云学堂网课自动登录")
     print("=" * 60)
-
     user_info = load_user_info()
     course_url = load_url()
 
-    # 步骤1：访问网课页面
-    print()
     colors.print_step("访问网课页面")
     result = requests.post(f"{SERVER_URL}/init", json={'url': course_url}, timeout=30).json()
     if not result.get('success'):
         colors.print_error("✗ 初始化失败")
         return False
-    colors.print_success("✓ 页面已加载")
+    colors.print_success("页面已加载")
 
-    # 步骤2：点击登录按钮
-    print()
     colors.print_step("点击登录按钮")
     result = send_command('find', {'selector': '.h-login'})
     if result and result['data']['count'] > 0:
         send_command('click', {'index': 0})
-        colors.print_success("✓ 登录按钮已点击")
+        colors.print_success("登录按钮已点击")
         time.sleep(2)
     else:
         colors.print_error("✗ 未找到登录按钮")
         return False
 
-    # 步骤3：点击统一身份认证（第一次）
-    print()
     colors.print_step("点击统一身份认证（第一次）")
     result = send_command('execute_script', {
         'script': '''
@@ -76,14 +69,11 @@ def do_login():
         '''
     })
     print(f"  状态: {result.get('data', {}).get('result', 'Unknown')}")
-    time.sleep(2)  # 等待弹窗出现
+    time.sleep(2)
 
-    # 步骤4：点击弹窗中的"同意并继续"按钮
-    print()
     colors.print_step("点击同意并继续")
     result = send_command('execute_script', {
         'script': '''
-            // 等待弹窗加载
             return new Promise(function(resolve) {
                 setTimeout(function() {
                     var buttons = document.querySelectorAll('button');
@@ -101,10 +91,8 @@ def do_login():
         '''
     })
     print(f"  状态: {result.get('data', {}).get('result', 'Unknown')}")
-    time.sleep(2)  # 等待页面响应
+    time.sleep(2)
 
-    # 步骤5：点击统一身份认证（第二次）
-    print()
     colors.print_step("再次点击统一身份认证")
     result = send_command('execute_script', {
         'script': '''
@@ -117,61 +105,50 @@ def do_login():
         '''
     })
     print(f"  状态: {result.get('data', {}).get('result', 'Unknown')}")
-    time.sleep(5)  # 等待跳转到统一认证页面
+    time.sleep(5)
 
-    # 步骤6：在统一认证页面输入用户名
-    print()
     colors.print_step("输入用户名")
     result = send_command('find', {'selector': '#user_name'})
     if result and result['data']['count'] > 0:
         send_command('send_keys', {'index': 0, 'text': user_info['user_name']})
-        colors.print_success(f"✓ 用户名: {user_info['user_name']}")
+        colors.print_success(f"用户名: {user_info['user_name']}")
         time.sleep(0.5)
     else:
         colors.print_error("✗ 未找到用户名输入框")
         return False
 
-    # 步骤7：输入密码
-    print()
     colors.print_step("输入密码")
     result = send_command('find', {'selector': '#password'})
     if result and result['data']['count'] > 0:
         send_command('send_keys', {'index': 0, 'text': user_info['password']})
-        colors.print_success(f"✓ 密码: {'*' * len(user_info['password'])}")
+        colors.print_success(f"密码: {'*' * len(user_info['password'])}")
         time.sleep(0.5)
     else:
         colors.print_error("✗ 未找到密码输入框")
         return False
 
-    # 步骤8：点击登录按钮
-    print()
     colors.print_step("点击登录按钮")
     result = send_command('find', {'selector': '#logon_button'})
     if result and result['data']['count'] > 0:
         send_command('click', {'index': 0})
-        colors.print_success("✓ 登录按钮已点击")
+        colors.print_success("登录按钮已点击")
     else:
         colors.print_error("✗ 未找到登录按钮")
         return False
 
-    # 等待跳转
-    print()
     colors.print_info("正在跳转回网课页面...")
     time.sleep(5)
 
-    # 检查登录状态
     result = send_command('page_info', {})
     current_url = result.get('data', {}).get('url', '')
 
     if 'byyxt.pupedu.cn' in current_url:
         print()
-        print(f"{'=' * 60}")
-        colors.print_success(f"  ✓ 登录成功！")
+        colors.print_success("登录成功！")
         print(f"  当前页面: {current_url}")
-        print(f"{'=' * 60}")
         return True
     else:
-        colors.print_error(f"\n✗ 登录可能失败，当前URL: {current_url}")
+        colors.print_error(f"✗ 登录可能失败，当前URL: {current_url}")
         return False
 
 if __name__ == '__main__':
