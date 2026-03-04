@@ -21,11 +21,11 @@ def print_error(text):
 
 def print_warning(text):
     """打印警告信息"""
-    print(f"⚠️ {get_timestamp()} {text}")
+    print(f"⚠️  {get_timestamp()} {text}")
 
 def print_info(text):
     """打印信息"""
-    print(f"ℹ️ {get_timestamp()} {text}")
+    print(f"ℹ️  {get_timestamp()} {text}")
 
 def print_step(text):
     """打印步骤信息"""
