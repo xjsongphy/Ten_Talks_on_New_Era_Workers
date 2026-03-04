@@ -5,10 +5,16 @@
 import requests
 import time
 import json
+import random
 
 from . import colors
 
 SERVER_URL = "http://127.0.0.1:5000"
+
+def random_delay(min_sec=0.5, max_sec=2.0):
+    """随机延迟，模拟人类操作"""
+    delay = random.uniform(min_sec, max_sec)
+    time.sleep(delay)
 
 def send_command(cmd, params=None):
     """发送命令到服务器"""
@@ -49,7 +55,7 @@ def do_login():
     if result and result['data']['count'] > 0:
         send_command('click', {'index': 0})
         colors.print_success("登录按钮已点击")
-        time.sleep(2)
+        random_delay(0.5, 1.2)
     else:
         colors.print_error("✗ 未找到登录按钮")
         return False
@@ -65,7 +71,7 @@ def do_login():
             return 'Not found';
         '''
     })
-    time.sleep(2)
+    random_delay(0.8, 1.5)
 
     colors.print_step("点击同意并继续")
     result = send_command('execute_script', {
@@ -86,7 +92,7 @@ def do_login():
             });
         '''
     })
-    time.sleep(2)
+    random_delay(0.8, 1.5)
 
     colors.print_step("再次点击统一身份认证")
     result = send_command('execute_script', {
@@ -99,14 +105,14 @@ def do_login():
             return 'Not found';
         '''
     })
-    time.sleep(5)
+    random_delay(2, 3.5)
 
     colors.print_step("输入用户名")
     result = send_command('find', {'selector': '#user_name'})
     if result and result['data']['count'] > 0:
         send_command('send_keys', {'index': 0, 'text': user_info['user_name']})
         colors.print_success(f"用户名: {user_info['user_name']}")
-        time.sleep(0.5)
+        random_delay(0.3, 0.6)
     else:
         colors.print_error("✗ 未找到用户名输入框")
         return False
@@ -116,7 +122,7 @@ def do_login():
     if result and result['data']['count'] > 0:
         send_command('send_keys', {'index': 0, 'text': user_info['password']})
         colors.print_success(f"密码: {'*' * len(user_info['password'])}")
-        time.sleep(0.5)
+        random_delay(0.3, 0.6)
     else:
         colors.print_error("✗ 未找到密码输入框")
         return False
@@ -131,7 +137,7 @@ def do_login():
         return False
 
     colors.print_info("正在跳转回网课页面...")
-    time.sleep(5)
+    random_delay(2, 4)
 
     result = send_command('page_info', {})
     current_url = result.get('data', {}).get('url', '')

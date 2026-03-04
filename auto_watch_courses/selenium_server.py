@@ -4,6 +4,7 @@ Selenium 控制服务器
 """
 import json
 import time
+import random
 import os
 from datetime import datetime
 from flask import Flask, request, jsonify
@@ -178,14 +179,14 @@ def execute():
                 try:
                     # 滚动到元素可见
                     driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", elem)
-                    time.sleep(0.5)
+                    time.sleep(random.uniform(0.3, 0.6))
                     # 尝试点击
                     elem.click()
                 except Exception as e:
                     # 如果常规点击失败，使用JavaScript点击
                     log(f"常规点击失败，使用JavaScript点击: {e}")
                     driver.execute_script("arguments[0].click();", elem)
-                time.sleep(2)
+                time.sleep(random.uniform(0.8, 1.6))
                 save_page_html()
                 result['data'] = {
                     'current_url': driver.current_url
@@ -249,7 +250,7 @@ def execute():
                 log(f"向元素 [{index}] 输入: {text}")
                 elem.clear()
                 elem.send_keys(text)
-                time.sleep(0.5)
+                time.sleep(random.uniform(0.2, 0.5))
                 result['data'] = {'success': True}
             else:
                 raise Exception(f"索引 {index} 超出范围")

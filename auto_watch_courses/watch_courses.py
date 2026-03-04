@@ -4,6 +4,7 @@
 import json
 import time
 import os
+import random
 from datetime import datetime, timedelta
 import requests
 
@@ -11,6 +12,11 @@ from . import colors
 
 SERVER_URL = "http://127.0.0.1:5000"
 PROGRESS_FILE = "watch_progress.json"
+
+def random_delay(min_sec=0.5, max_sec=2.0):
+    """随机延迟，模拟人类操作"""
+    delay = random.uniform(min_sec, max_sec)
+    time.sleep(delay)
 
 def format_time(seconds):
     """格式化时间显示"""
@@ -92,7 +98,7 @@ class CourseWatcher:
         if not result:
             return []
 
-        time.sleep(3)
+        random_delay(1, 2)
 
         # 获取课程列表
         result = self.send_command('execute_script', {
@@ -146,7 +152,7 @@ class CourseWatcher:
             colors.print_error("✗ 点击视频失败")
             return False
 
-        time.sleep(3)
+        random_delay(0.5, 1.2)
 
         # 切换到视频播放窗口
         result = self.send_command('switch_window', {'index': -1})
@@ -155,7 +161,7 @@ class CourseWatcher:
             colors.print_error("✗ 切换窗口失败")
             return False
 
-        time.sleep(5)
+        random_delay(2, 4)
 
         # 获取视频信息
         result = self.send_command('execute_script', {
@@ -206,7 +212,7 @@ class CourseWatcher:
                     return 'Play button not found';
                 '''
             })
-            time.sleep(2)
+            random_delay(0.5, 1.5)
 
         # 启动保持活跃的定时器
         self.send_command('execute_script', {
@@ -241,12 +247,14 @@ class CourseWatcher:
         # 模拟观看 - 定期检查进度
         self.video_start_time = time.time()
         elapsed = 0
-        check_interval = 30  # 每30秒检查一次
+        base_check_interval = 30  # 基础检查间隔30秒
         total_seconds = int(duration)
 
         colors.print_info("▶️  开始播放（支持后台播放）")
 
         while elapsed < total_seconds:
+            # 添加随机性，避免固定间隔
+            check_interval = base_check_interval + random.uniform(-5, 5)
             time.sleep(check_interval)
             elapsed += check_interval
 
@@ -311,7 +319,7 @@ class CourseWatcher:
 
         # 关闭视频窗口
         self.send_command('close_window', {})
-        time.sleep(2)
+        random_delay(0.8, 1.5)
 
         # 标记课程完成
         self.progress['current_course'] += 1
@@ -350,8 +358,8 @@ class CourseWatcher:
 
                 # 观看完成后等待一段时间再继续下一讲
                 if i < len(courses) - 1:
-                    colors.print_info("⏳  5秒后继续下一讲...")
-                    time.sleep(5)
+                    colors.print_info("⏳  准备下一讲...")
+                    random_delay(2, 4)
 
             # 检查是否全部完成
             if self.progress['current_course'] >= len(courses):
