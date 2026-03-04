@@ -15,6 +15,7 @@ dependencies = [
 
 [project.scripts]
 auto_watch = "auto_watch_courses.auto_watch:main"
+server = "auto_watch_courses.selenium_server:main"
 
 [dependency-groups]
 dev = []

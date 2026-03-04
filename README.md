@@ -81,7 +81,15 @@ python main.py
 
 ## 调试
 
-Selenium 服务运行时，可用客户端手动发送命令：
+单独启动 selenium 服务（方便手动调试）：
+
+```bash
+uv run server
+# 或
+python auto_watch_courses/selenium_server.py
+```
+
+服务运行时，可用客户端手动发送命令：
 
 ```bash
 python auto_watch_courses/selenium_client.py info              # 当前页面信息

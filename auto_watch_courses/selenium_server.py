@@ -375,11 +375,13 @@ def shutdown():
     log("服务器退出")
     os._exit(0)
 
-if __name__ == '__main__':
+def main():
     # 清空日志文件
     open(LOG_FILE, 'w').close()
     log("Selenium控制服务器启动")
     log("访问 http://localhost:5000 来控制浏览器")
-    log("可用端点: /status, /init, /execute, /quit")
-
+    log("可用端点: /status, /init, /execute, /quit, /shutdown")
     app.run(host='127.0.0.1', port=5000, debug=False)
+
+if __name__ == '__main__':
+    main()
