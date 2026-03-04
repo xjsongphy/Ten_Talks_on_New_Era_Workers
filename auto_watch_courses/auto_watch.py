@@ -39,13 +39,10 @@ def start_server():
         return False
 
 def main():
-    print("━" * 70)
-    print("  🏠 云学堂网课自动观看工具")
-    print("  🏠 支持断点续看 | 自动登录 | 模拟人类行为")
-    print("━" * 70)
+    colors.print_info("云学堂网课自动观看工具")
+    colors.print_info("支持断点续看 | 自动登录 | 模拟人类行为")
 
     if not check_server_running():
-        print()
         colors.print_info("服务器未运行，正在启动...")
         if not start_server():
             colors.print_error("错误: 无法启动服务器")
@@ -54,7 +51,6 @@ def main():
     else:
         colors.print_success("服务器运行中")
 
-    print()
     colors.print_info("开始登录流程...")
     success = login.do_login()
     if not success:
@@ -62,7 +58,6 @@ def main():
         return
     colors.print_success("登录成功！")
 
-    print()
     colors.print_info("开始自动观看课程...")
     watcher = watch_courses.CourseWatcher()
     watcher.run()

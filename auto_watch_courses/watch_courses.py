@@ -120,7 +120,7 @@ class CourseWatcher:
             return []
 
         courses = result.get('data', {}).get('result', [])
-        colors.print_success(f"\n✓ 找到 {len(courses)} 个课程\n")
+        colors.print_success(f"找到 {len(courses)} 个课程")
         for i, course in enumerate(courses):
             if i < self.progress['current_course']:
                 status = "✓"
@@ -132,20 +132,16 @@ class CourseWatcher:
                 status = " "
                 title = course.get('title', '')
             duration = course.get('duration', '')
-            print(f"  {status} {i+1:2d}. {title} [{duration}]")
+            print(f"{status} {i+1:2d}. {title} [{duration}]")
 
         return courses
 
     def watch_video(self, course):
         """观看单个视频"""
         course_num = self.progress['current_course'] + 1
-        print()
-        print("━" * 70)
-        print(f"  📺 开始观看第 {course_num}/10 讲")
-        print("━" * 70)
-        print(f"  📺 {course.get('title', '')}")
-        print(f"  ⏱️  视频时长: {course.get('duration', '')}")
-        print()
+        colors.print_info(f"📺 开始观看第 {course_num}/10 讲")
+        colors.print_info(f"📺 {course.get('title', '')}")
+        colors.print_info(f"⏱️ 视频时长: {course.get('duration', '')}")
         colors.print_info("正在打开视频...")
         result = self.send_command('execute_script', {
             'script': f'''
@@ -200,7 +196,7 @@ class CourseWatcher:
             return False
 
         duration = video_info.get('duration', 0)
-        colors.print_success(f"✓ 视频已就绪 (总时长: {format_time(duration)})")
+        colors.print_success(f"视频已就绪 (总时长: {format_time(duration)})")
 
         # 开始播放视频（使用Selenium点击播放按钮，避免浏览器自动播放限制）
         if video_info.get('paused', True):
@@ -253,9 +249,7 @@ class CourseWatcher:
         check_interval = 30  # 每30秒检查一次
         total_seconds = int(duration)
 
-        print()
-        colors.print_info("▶️  开始播放（支持后台播放）")
-        print()
+        colors.print_info("▶️ 开始播放（支持后台播放）")
 
         while elapsed < total_seconds:
             time.sleep(check_interval)
@@ -305,7 +299,7 @@ class CourseWatcher:
 
                     # 检查是否播放完成
                     if remaining <= 5:
-                        colors.print_success("\n✓ 视频播放完成")
+                        colors.print_success("视频播放完成")
                         break
 
         # 清理定时器和资源
@@ -331,27 +325,17 @@ class CourseWatcher:
             self.progress['completed_courses'].append(course_id)
 
         self.save_progress()
-        print()
-        print("━" * 70)
-        colors.print_success(f"✓ 第 {course_num} 讲观看完成！")
-        print("━" * 70)
-        print()
+        colors.print_success(f"第 {course_num} 讲观看完成！")
 
         return True
 
     def run(self):
         """主运行流程"""
-        print("━" * 70)
-        print("  🏠 自动观看网课脚本 - 支持断点续看")
-        print("━" * 70)
-
         # 检查是否继续上次的进度
         start_course = self.progress['current_course']
         if start_course > 0:
-            print()
             colors.print_info(f"断点续看模式：从第 {start_course + 1} 讲开始")
             colors.print_info(f"已完成 {len(self.progress.get('completed_courses', []))} 讲")
-            print()
 
         try:
             # 获取课程列表
@@ -371,16 +355,13 @@ class CourseWatcher:
 
                 # 观看完成后等待一段时间再继续下一讲
                 if i < len(courses) - 1:
-                    print(f"{colors.Colors.WARNING}⏳ 5秒后继续下一讲...{colors.Colors.ENDC}\n")
+                    colors.print_info("⏳ 5秒后继续下一讲...")
                     time.sleep(5)
 
             # 检查是否全部完成
             if self.progress['current_course'] >= len(courses):
-                print()
-                print("━" * 70)
                 colors.print_success("🎉 全部课程观看完成！")
-                colors.print_success(f"✓ 完成课程数: {len(self.progress.get('completed_courses', []))} / {len(courses)}")
-                print("━" * 70)
+                colors.print_success(f"完成课程数: {len(self.progress.get('completed_courses', []))} / {len(courses)}")
 
         except KeyboardInterrupt:
             print()
@@ -394,15 +375,12 @@ class CourseWatcher:
             self.save_progress()
 
 if __name__ == '__main__':
-    print(f"\n{colors.Colors.OKCYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{colors.Colors.ENDC}")
-    print(f"{colors.Colors.BOLD}  使用说明{colors.Colors.ENDC}")
-    print(f"{colors.Colors.OKCYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{colors.Colors.ENDC}")
-    print(f"  1️⃣  确保已经运行 {colors.Colors.WARNING}login.py{colors.Colors.ENDC} 完成登录")
-    print(f"  2️⃣  确保服务器正在运行 ({colors.Colors.WARNING}python selenium_server.py{colors.Colors.ENDC})")
-    print(f"  3️⃣  运行此脚本开始自动观看")
-    print(f"  4️⃣  按 {colors.Colors.WARNING}Ctrl+C{colors.Colors.ENDC} 可以随时中断，进度会自动保存")
-    print(f"  5️⃣  下次运行会自动从上次的位置继续")
-    print(f"{colors.Colors.OKCYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{colors.Colors.ENDC}\n")
+    colors.print_info("使用说明")
+    colors.print_info("1️⃣ 确保已经运行 login.py 完成登录")
+    colors.print_info("2️⃣ 确保服务器正在运行 (python selenium_server.py)")
+    colors.print_info("3️⃣ 运行此脚本开始自动观看")
+    colors.print_info("4️⃣ 按 Ctrl+C 可以随时中断，进度会自动保存")
+    colors.print_info("5️⃣ 下次运行会自动从上次的位置继续")
 
     watcher = CourseWatcher()
     watcher.run()

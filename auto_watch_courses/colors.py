@@ -37,11 +37,7 @@ def print_label(text):
 
 def print_banner(title, subtitle=""):
     """打印横幅"""
-    print()
-    print(f"— {'━' * 66} —")
     if title:
-        print(f"  🏠 {title}")
+        print(f"🏠 {title}")
     if subtitle:
-        print(f"  🏠 {subtitle}")
-    print(f"— {'━' * 66} —")
-    print()
+        print(f"🏠 {subtitle}")

@@ -34,9 +34,6 @@ def load_url():
 
 def do_login():
     """执行登录流程"""
-    print("=" * 60)
-    print("    云学堂网课自动登录")
-    print("=" * 60)
     user_info = load_user_info()
     course_url = load_url()
 
@@ -68,7 +65,6 @@ def do_login():
             return 'Not found';
         '''
     })
-    print(f"  状态: {result.get('data', {}).get('result', 'Unknown')}")
     time.sleep(2)
 
     colors.print_step("点击同意并继续")
@@ -90,7 +86,6 @@ def do_login():
             });
         '''
     })
-    print(f"  状态: {result.get('data', {}).get('result', 'Unknown')}")
     time.sleep(2)
 
     colors.print_step("再次点击统一身份认证")
@@ -104,7 +99,6 @@ def do_login():
             return 'Not found';
         '''
     })
-    print(f"  状态: {result.get('data', {}).get('result', 'Unknown')}")
     time.sleep(5)
 
     colors.print_step("输入用户名")
@@ -143,9 +137,8 @@ def do_login():
     current_url = result.get('data', {}).get('url', '')
 
     if 'byyxt.pupedu.cn' in current_url:
-        print()
         colors.print_success("登录成功！")
-        print(f"  当前页面: {current_url}")
+        colors.print_info(f"当前页面: {current_url}")
         return True
     else:
         colors.print_error(f"✗ 登录可能失败，当前URL: {current_url}")
