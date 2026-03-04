@@ -7,19 +7,10 @@ import os
 from datetime import datetime, timedelta
 import requests
 
+from . import colors
+
 SERVER_URL = "http://127.0.0.1:5000"
 PROGRESS_FILE = "watch_progress.json"
-
-# ANSI颜色代码
-class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    END = '\033[0m'
-    BOLD = '\033[1m'
 
 def format_time(seconds):
     """格式化时间显示"""
@@ -42,7 +33,7 @@ def progress_bar(current, total, width=30):
     filled = int(width * current / total)
     bar = '█' * filled + '░' * (width - filled)
     percentage = int(current / total * 100) if total > 0 else 0
-    return f"{Colors.CYAN}[{bar}]{Colors.END} {percentage:>3}%"
+    return f"{colors.Colors.OKCYAN}[{bar}]{colors.colors.Colors.ENDCC} {percentage:>3}%"
 
 class CourseWatcher:
     def __init__(self):
@@ -75,16 +66,16 @@ class CourseWatcher:
             response = requests.post(f"{SERVER_URL}/execute", json=data, timeout=30)
             result = response.json()
             if result.get('success') == False:
-                print(f"[错误] {result.get('error')}")
+                colors.print_error(f"[错误] {result.get('error')}")
                 return None
             return result
         except Exception as e:
-            print(f"[错误] 命令执行失败: {e}")
+            colors.print_error(f"[错误] 命令执行失败: {e}")
             return None
 
     def get_course_list(self):
         """获取课程列表"""
-        print(f"\n{Colors.CYAN}📋 正在获取课程列表...{Colors.END}")
+        print(f"\n📋 正在获取课程列表...")
 
         # 点击课程目录标签
         result = self.send_command('execute_script', {
@@ -105,7 +96,7 @@ class CourseWatcher:
 
         # 获取课程列表
         result = self.send_command('execute_script', {
-            'script': '''
+            'script': r'''
                 var nodes = document.querySelectorAll('.el-tree-node .el-tree-node__content');
                 var courses = [];
                 for (var i = 0; i < nodes.length; i++) {
@@ -129,33 +120,34 @@ class CourseWatcher:
             return []
 
         courses = result.get('data', {}).get('result', [])
-        print(f"\n{Colors.GREEN}✓ 找到 {len(courses)} 个课程{Colors.END}\n")
+        colors.print_success(f"\n✓ 找到 {len(courses)} 个课程\n")
         for i, course in enumerate(courses):
             if i < self.progress['current_course']:
-                status = f"{Colors.GREEN}✓{Colors.END}"
+                status = "✓"
                 title = course.get('title', '')
             elif i == self.progress['current_course']:
-                status = f"{Colors.YELLOW}▶{Colors.END}"
-                title = f"{Colors.BOLD}{course.get('title', '')}{Colors.END}"
+                status = "▶"
+                title = course.get('title', '')
             else:
                 status = " "
                 title = course.get('title', '')
             duration = course.get('duration', '')
-            print(f"  {status} {Colors.CYAN}{i+1:2d}.{Colors.END} {title} {Colors.BLUE}[{duration}]{Colors.END}")
+            print(f"  {status} {i+1:2d}. {title} [{duration}]")
 
         return courses
 
     def watch_video(self, course):
         """观看单个视频"""
         course_num = self.progress['current_course'] + 1
-        print(f"\n{Colors.BOLD}{Colors.HEADER}╔════════════════════════════════════════════════════════════╗{Colors.END}")
-        print(f"{Colors.BOLD}{Colors.HEADER}║{Colors.END} {Colors.CYAN}开始观看第 {course_num}/10 讲{Colors.END} {Colors.BOLD}{Colors.HEADER}                              ║{Colors.END}")
-        print(f"{Colors.BOLD}{Colors.HEADER}╚════════════════════════════════════════════════════════════╝{Colors.END}")
-        print(f"\n{Colors.BOLD}📺 {course.get('title', '')}{Colors.END}")
-        print(f"⏱️  视频时长: {Colors.BLUE}{course.get('duration', '')}{Colors.END}")
+        print()
+        print("=" * 70)
+        print(f"  开始观看第 {course_num}/10 讲")
+        print("=" * 70)
+        print(f"\n📺 {course.get('title', '')}")
+        print(f"⏱️  视频时长: {course.get('duration', '')}")
 
         # 点击课程视频
-        print(f"\n{Colors.YELLOW}⏳ 正在打开视频...{Colors.END}", flush=True)
+        print(f"\n⏳ 正在打开视频...", flush=True)
         result = self.send_command('execute_script', {
             'script': f'''
                 var nodes = document.querySelectorAll('.el-tree-node .el-tree-node__content');
@@ -168,7 +160,7 @@ class CourseWatcher:
         })
 
         if not result:
-            print(f"{Colors.RED}✗ 点击视频失败{Colors.END}")
+            colors.print_error("✗ 点击视频失败")
             return False
 
         time.sleep(3)
@@ -177,7 +169,7 @@ class CourseWatcher:
         result = self.send_command('switch_window', {'index': -1})
 
         if not result:
-            print(f"{Colors.RED}✗ 切换窗口失败{Colors.END}")
+            colors.print_error("✗ 切换窗口失败")
             return False
 
         time.sleep(5)
@@ -199,17 +191,17 @@ class CourseWatcher:
         })
 
         if not result:
-            print(f"{Colors.RED}✗ 获取视频信息失败{Colors.END}")
+            colors.print_error("✗ 获取视频信息失败")
             return False
 
         video_info = result.get('data', {}).get('result', {})
 
         if not video_info.get('found'):
-            print(f"{Colors.RED}✗ 未找到视频元素{Colors.END}")
+            colors.print_error("✗ 未找到视频元素")
             return False
 
         duration = video_info.get('duration', 0)
-        print(f"{Colors.GREEN}✓ 视频已就绪{Colors.END} (总时长: {format_time(duration)})")
+        colors.print_success(f"✓ 视频已就绪 (总时长: {format_time(duration)})")
 
         # 开始播放视频（使用Selenium点击播放按钮，避免浏览器自动播放限制）
         if video_info.get('paused', True):
@@ -262,7 +254,7 @@ class CourseWatcher:
         check_interval = 30  # 每30秒检查一次
         total_seconds = int(duration)
 
-        print(f"\n{Colors.GREEN}▶️  开始播放...{Colors.END} {Colors.BLUE}(支持后台播放){Colors.END}\n")
+        print(f"\n▶️  开始播放... (支持后台播放)\n")
 
         while elapsed < total_seconds:
             time.sleep(check_interval)
@@ -312,7 +304,7 @@ class CourseWatcher:
 
                     # 检查是否播放完成
                     if remaining <= 5:
-                        print(f"\n{Colors.GREEN}✓ 视频播放完成{Colors.END}")
+                        colors.print_success("\n✓ 视频播放完成")
                         break
 
         # 清理定时器和资源
@@ -338,32 +330,34 @@ class CourseWatcher:
             self.progress['completed_courses'].append(course_id)
 
         self.save_progress()
-        print(f"\n{Colors.GREEN}═══════════════════════════════════════════════════════════════{Colors.END}")
-        print(f"{Colors.GREEN}  ✓ 第 {course_num} 讲观看完成！{Colors.END}")
-        print(f"{Colors.GREEN}═══════════════════════════════════════════════════════════════{Colors.END}\n")
+        print()
+        colors.print_success("=" * 70)
+        colors.print_success(f"  ✓ 第 {course_num} 讲观看完成！")
+        colors.print_success("=" * 70)
+        print()
 
         return True
 
     def run(self):
         """主运行流程"""
-        print(f"{Colors.BOLD}{Colors.HEADER}╔════════════════════════════════════════════════════════════╗{Colors.END}")
-        print(f"{Colors.BOLD}{Colors.HEADER}║{Colors.END} {Colors.CYAN}        自动观看网课脚本 - 支持断点续看{Colors.END}          {Colors.BOLD}{Colors.HEADER}║{Colors.END}")
-        print(f"{Colors.BOLD}{Colors.HEADER}╚════════════════════════════════════════════════════════════╝{Colors.END}")
-        print(f"{Colors.BLUE}🕐 开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}{Colors.END}")
+        print("=" * 70)
+        print("        自动观看网课脚本 - 支持断点续看")
+        print("=" * 70)
+        print(f"🕐 开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         # 检查是否继续上次的进度
         start_course = self.progress['current_course']
         if start_course > 0:
-            print(f"\n{Colors.YELLOW}📂 断点续看模式{Colors.END}")
-            print(f"   从第 {Colors.CYAN}{start_course + 1}{Colors.END} 讲开始")
-            print(f"   已完成: {Colors.GREEN}{len(self.progress.get('completed_courses', []))}{Colors.END} 讲")
+            print(f"\n📂 断点续看模式")
+            print(f"   从第 {start_course + 1} 讲开始")
+            print(f"   已完成: {len(self.progress.get('completed_courses', []))} 讲")
 
         try:
             # 获取课程列表
             courses = self.get_course_list()
 
             if not courses:
-                print(f"{Colors.RED}[错误] 未获取到课程列表{Colors.END}")
+                colors.print_error("[错误] 未获取到课程列表")
                 return
 
             # 从当前进度开始观看
@@ -371,42 +365,45 @@ class CourseWatcher:
                 success = self.watch_video(courses[i])
 
                 if not success:
-                    print(f"{Colors.RED}[错误] 第 {i+1} 讲观看失败{Colors.END}")
+                    colors.print_error(f"[错误] 第 {i+1} 讲观看失败")
                     break
 
                 # 观看完成后等待一段时间再继续下一讲
                 if i < len(courses) - 1:
-                    print(f"{Colors.YELLOW}⏳ 5秒后继续下一讲...{Colors.END}\n")
+                    print(f"{colors.Colors.WARNING}⏳ 5秒后继续下一讲...{colors.Colors.ENDC}\n")
                     time.sleep(5)
 
             # 检查是否全部完成
             if self.progress['current_course'] >= len(courses):
-                print(f"\n{Colors.GREEN}{Colors.BOLD}╔════════════════════════════════════════════════════════════╗{Colors.END}")
-                print(f"{Colors.GREEN}{Colors.BOLD}║{Colors.END}           🎉 全部课程观看完成！🎉            {Colors.GREEN}{Colors.BOLD}║{Colors.END}")
-                print(f"{Colors.GREEN}{Colors.BOLD}╚════════════════════════════════════════════════════════════╝{Colors.END}")
-                print(f"{Colors.BLUE}🕐 完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}{Colors.END}")
-                print(f"{Colors.GREEN}✓ 完成课程数: {len(self.progress.get('completed_courses', []))} / {len(courses)}{Colors.END}")
+                print()
+                colors.print_success("╔════════════════════════════════════════════════════════════╗")
+                colors.print_success("║           🎉 全部课程观看完成！🎉            ║")
+                colors.print_success("╚════════════════════════════════════════════════════════════╝")
+                print(f"🕐 完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                colors.print_success(f"✓ 完成课程数: {len(self.progress.get('completed_courses', []))} / {len(courses)}")
 
         except KeyboardInterrupt:
-            print(f"\n\n{Colors.YELLOW}[中断] 用户手动中断{Colors.END}")
-            print(f"{Colors.BLUE}💾 进度已保存，下次可以继续{Colors.END}")
+            print()
+            colors.print_label("[中断] ")
+            print("用户手动中断")
+            print(f"💾 进度已保存，下次可以继续")
             self.save_progress()
         except Exception as e:
-            print(f"\n{Colors.RED}[错误] 发生异常: {e}{Colors.END}")
+            colors.print_error(f"[错误] 发生异常: {e}")
             import traceback
             traceback.print_exc()
             self.save_progress()
 
 if __name__ == '__main__':
-    print(f"\n{Colors.CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{Colors.END}")
-    print(f"{Colors.BOLD}  使用说明{Colors.END}")
-    print(f"{Colors.CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{Colors.END}")
-    print(f"  1️⃣  确保已经运行 {Colors.YELLOW}login.py{Colors.END} 完成登录")
-    print(f"  2️⃣  确保服务器正在运行 ({Colors.YELLOW}python selenium_server.py{Colors.END})")
+    print(f"\n{colors.Colors.OKCYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{colors.Colors.ENDC}")
+    print(f"{colors.Colors.BOLD}  使用说明{colors.Colors.ENDC}")
+    print(f"{colors.Colors.OKCYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{colors.Colors.ENDC}")
+    print(f"  1️⃣  确保已经运行 {colors.Colors.WARNING}login.py{colors.Colors.ENDC} 完成登录")
+    print(f"  2️⃣  确保服务器正在运行 ({colors.Colors.WARNING}python selenium_server.py{colors.Colors.ENDC})")
     print(f"  3️⃣  运行此脚本开始自动观看")
-    print(f"  4️⃣  按 {Colors.YELLOW}Ctrl+C{Colors.END} 可以随时中断，进度会自动保存")
+    print(f"  4️⃣  按 {colors.Colors.WARNING}Ctrl+C{colors.Colors.ENDC} 可以随时中断，进度会自动保存")
     print(f"  5️⃣  下次运行会自动从上次的位置继续")
-    print(f"{Colors.CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{Colors.END}\n")
+    print(f"{colors.Colors.OKCYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{colors.Colors.ENDC}\n")
 
     watcher = CourseWatcher()
     watcher.run()

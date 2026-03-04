@@ -6,6 +6,8 @@ import requests
 import time
 import json
 
+from . import colors
+
 SERVER_URL = "http://127.0.0.1:5000"
 
 def send_command(cmd, params=None):
@@ -17,7 +19,7 @@ def send_command(cmd, params=None):
         response = requests.post(f"{SERVER_URL}/execute", json=data, timeout=30)
         return response.json()
     except Exception as e:
-        print(f"[错误] 命令执行失败: {e}")
+        colors.print_error(f"[错误] 命令执行失败: {e}")
         return None
 
 def load_user_info():
@@ -40,26 +42,29 @@ def do_login():
     course_url = load_url()
 
     # 步骤1：访问网课页面
-    print(f"\n[步骤1] 访问网课页面")
+    print()
+    colors.print_step("访问网课页面")
     result = requests.post(f"{SERVER_URL}/init", json={'url': course_url}, timeout=30).json()
     if not result.get('success'):
-        print("✗ 初始化失败")
+        colors.print_error("✗ 初始化失败")
         return False
-    print("✓ 页面已加载")
+    colors.print_success("✓ 页面已加载")
 
     # 步骤2：点击登录按钮
-    print(f"\n[步骤2] 点击登录按钮")
+    print()
+    colors.print_step("点击登录按钮")
     result = send_command('find', {'selector': '.h-login'})
     if result and result['data']['count'] > 0:
         send_command('click', {'index': 0})
-        print("✓ 登录按钮已点击")
+        colors.print_success("✓ 登录按钮已点击")
         time.sleep(2)
     else:
-        print("✗ 未找到登录按钮")
+        colors.print_error("✗ 未找到登录按钮")
         return False
 
     # 步骤3：点击统一身份认证（第一次）
-    print(f"\n[步骤3] 点击统一身份认证")
+    print()
+    colors.print_step("点击统一身份认证（第一次）")
     result = send_command('execute_script', {
         'script': '''
             var authText = document.querySelector('.denglu_text_one');
@@ -74,7 +79,8 @@ def do_login():
     time.sleep(2)  # 等待弹窗出现
 
     # 步骤4：点击弹窗中的"同意并继续"按钮
-    print(f"\n[步骤4] 点击同意并继续")
+    print()
+    colors.print_step("点击同意并继续")
     result = send_command('execute_script', {
         'script': '''
             // 等待弹窗加载
@@ -98,7 +104,8 @@ def do_login():
     time.sleep(2)  # 等待页面响应
 
     # 步骤5：点击统一身份认证（第二次）
-    print(f"\n[步骤5] 再次点击统一身份认证")
+    print()
+    colors.print_step("再次点击统一身份认证")
     result = send_command('execute_script', {
         'script': '''
             var authText = document.querySelector('.denglu_text_one');
@@ -113,39 +120,43 @@ def do_login():
     time.sleep(5)  # 等待跳转到统一认证页面
 
     # 步骤6：在统一认证页面输入用户名
-    print(f"\n[步骤6] 输入用户名")
+    print()
+    colors.print_step("输入用户名")
     result = send_command('find', {'selector': '#user_name'})
     if result and result['data']['count'] > 0:
         send_command('send_keys', {'index': 0, 'text': user_info['user_name']})
-        print(f"✓ 用户名: {user_info['user_name']}")
+        colors.print_success(f"✓ 用户名: {user_info['user_name']}")
         time.sleep(0.5)
     else:
-        print("✗ 未找到用户名输入框")
+        colors.print_error("✗ 未找到用户名输入框")
         return False
 
     # 步骤7：输入密码
-    print(f"\n[步骤7] 输入密码")
+    print()
+    colors.print_step("输入密码")
     result = send_command('find', {'selector': '#password'})
     if result and result['data']['count'] > 0:
         send_command('send_keys', {'index': 0, 'text': user_info['password']})
-        print(f"✓ 密码: {'*' * len(user_info['password'])}")
+        colors.print_success(f"✓ 密码: {'*' * len(user_info['password'])}")
         time.sleep(0.5)
     else:
-        print("✗ 未找到密码输入框")
+        colors.print_error("✗ 未找到密码输入框")
         return False
 
     # 步骤8：点击登录按钮
-    print(f"\n[步骤8] 点击登录按钮")
+    print()
+    colors.print_step("点击登录按钮")
     result = send_command('find', {'selector': '#logon_button'})
     if result and result['data']['count'] > 0:
         send_command('click', {'index': 0})
-        print("✓ 登录按钮已点击")
+        colors.print_success("✓ 登录按钮已点击")
     else:
-        print("✗ 未找到登录按钮")
+        colors.print_error("✗ 未找到登录按钮")
         return False
 
     # 等待跳转
-    print(f"\n[等待] 正在跳转回网课页面...")
+    print()
+    colors.print_info("正在跳转回网课页面...")
     time.sleep(5)
 
     # 检查登录状态
@@ -153,13 +164,14 @@ def do_login():
     current_url = result.get('data', {}).get('url', '')
 
     if 'byyxt.pupedu.cn' in current_url:
-        print(f"\n{'=' * 60}")
-        print(f"  ✓ 登录成功！")
+        print()
+        print(f"{'=' * 60}")
+        colors.print_success(f"  ✓ 登录成功！")
         print(f"  当前页面: {current_url}")
         print(f"{'=' * 60}")
         return True
     else:
-        print(f"\n✗ 登录可能失败，当前URL: {current_url}")
+        colors.print_error(f"\n✗ 登录可能失败，当前URL: {current_url}")
         return False
 
 if __name__ == '__main__':

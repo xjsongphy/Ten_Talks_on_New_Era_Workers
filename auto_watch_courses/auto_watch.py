@@ -9,6 +9,7 @@ import subprocess
 
 from . import login
 from . import watch_courses
+from . import colors
 
 def check_server_running():
     """检查服务器是否运行"""
@@ -21,7 +22,7 @@ def check_server_running():
 
 def start_server():
     """启动Selenium服务器"""
-    print("[启动] Selenium服务器...")
+    colors.print_info("启动 Selenium 服务器...")
     server_script = os.path.join(os.path.dirname(__file__), 'selenium_server.py')
     # 使用子进程启动服务器，不阻塞
     subprocess.Popen(
@@ -33,35 +34,35 @@ def start_server():
     time.sleep(5)
 
     if check_server_running():
-        print("✓ 服务器启动成功")
+        colors.print_success("✓ 服务器启动成功")
         return True
     else:
-        print("✗ 服务器启动失败")
+        colors.print_error("✗ 服务器启动失败")
         return False
 
 def main():
-    print("="*70)
+    print("=" * 70)
     print("    云学堂网课自动观看工具")
     print("    支持断点续看 | 自动登录 | 模拟人类行为")
-    print("="*70)
+    print("=" * 70)
 
     # 检查服务器
     if not check_server_running():
         print("\n服务器未运行，正在启动...")
         if not start_server():
-            print("\n错误: 无法启动服务器")
+            colors.print_error("\n错误: 无法启动服务器")
             print("请手动运行: python selenium_server.py")
             return
     else:
-        print("\n✓ 服务器运行中")
+        colors.print_success("\n✓ 服务器运行中")
 
     # 执行登录
     print("\n开始登录流程...")
     success = login.do_login()
     if not success:
-        print("\n登录失败，请检查用户名和密码")
+        colors.print_error("\n登录失败，请检查用户名和密码")
         return
-    print("\n登录成功！")
+    colors.print_success("\n登录成功！")
 
     # 执行观看
     print("\n开始自动观看课程...")
