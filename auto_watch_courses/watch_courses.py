@@ -302,6 +302,7 @@ class CourseWatcher:
 
                     # 检查是否播放完成
                     if remaining <= 5:
+                        print()  # 结束进度条所在行
                         colors.print_success("视频播放完成")
                         break
 
