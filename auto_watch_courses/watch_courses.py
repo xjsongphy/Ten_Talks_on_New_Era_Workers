@@ -129,7 +129,7 @@ class CourseWatcher:
         course_num = self.progress['current_course'] + 1
         colors.print_info(f"📺 开始观看第 {course_num}/10 讲")
         colors.print_info(f"📺 {course.get('title', '')}")
-        colors.print_info(f"⏱️ 视频时长: {course.get('duration', '')}")
+        colors.print_info(f"⏱️  视频时长: {course.get('duration', '')}")
         colors.print_info("正在打开视频...")
         result = self.send_command('execute_script', {
             'script': f'''
@@ -237,7 +237,7 @@ class CourseWatcher:
         check_interval = 30  # 每30秒检查一次
         total_seconds = int(duration)
 
-        colors.print_info("▶️ 开始播放（支持后台播放）")
+        colors.print_info("▶️  开始播放（支持后台播放）")
 
         while elapsed < total_seconds:
             time.sleep(check_interval)

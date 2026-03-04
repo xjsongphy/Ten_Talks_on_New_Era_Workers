@@ -57,39 +57,13 @@ def init_browser():
         # 防止窗口弹到前面
         chrome_options.add_argument('--no-first-run')
         chrome_options.add_argument('--no-default-browser-check')
-        # 窗口初始位置在屏幕外，避免 Dock 闪烁
-        chrome_options.add_argument('--window-position=9999,9999')
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
 
         driver = webdriver.Chrome(options=chrome_options)
 
-        # 初始将窗口移到屏幕外
-        driver.set_window_position(9999, 9999)
-
-        # 拦截所有焦点和窗口事件
-        driver.execute_script("""
-            // 禁用 window.focus
-            Object.defineProperty(window, 'focus', {
-                get: () => function() {
-                    // 防止窗口获得焦点
-                    return false;
-                }
-            });
-
-            // 禁用 window.blur
-            Object.defineProperty(window, 'blur', {
-                get: () => function() {
-                    return false;
-                }
-            });
-
-            // 禁用 window.open
-            const originalOpen = window.open;
-            window.open = function(url, target, features) {
-                return null;
-            };
-        """)
+        # 让窗口失去焦点，不弹到前面
+        driver.execute_script("window.blur();")
 
         # 注入反后台暂停的脚本到所有新页面
         driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
@@ -334,17 +308,8 @@ def execute():
             else:
                 raise Exception(f"窗口索引 {window_index} 超出范围")
 
-            # 防止窗口获得焦点，阻止 Dock 闪烁
-            driver.execute_script("""
-                // 拦截 focus 事件
-                const focusListener = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                };
-                window.addEventListener('focus', focusListener, true);
-                window.addEventListener('blur', focusListener, true);
-                window.addEventListener('load', focusListener, true);
-            """)
+            # 让窗口失去焦点，不弹到前面
+            driver.execute_script("window.blur();")
 
             save_page_html()
             result['data'] = {
