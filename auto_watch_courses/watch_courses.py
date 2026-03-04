@@ -127,8 +127,8 @@ class CourseWatcher:
     def watch_video(self, course):
         """观看单个视频"""
         course_num = self.progress['current_course'] + 1
-        colors.print_info(f"📺 开始观看第 {course_num}/10 讲")
-        colors.print_info(f"📺 {course.get('title', '')}")
+        colors.print_info(f"📺  开始观看第 {course_num}/10 讲")
+        colors.print_info(f"📺  {course.get('title', '')}")
         colors.print_info(f"⏱️  视频时长: {course.get('duration', '')}")
         colors.print_info("正在打开视频...")
         result = self.send_command('execute_script', {
@@ -343,12 +343,12 @@ class CourseWatcher:
 
                 # 观看完成后等待一段时间再继续下一讲
                 if i < len(courses) - 1:
-                    colors.print_info("⏳ 5秒后继续下一讲...")
+                    colors.print_info("⏳  5秒后继续下一讲...")
                     time.sleep(5)
 
             # 检查是否全部完成
             if self.progress['current_course'] >= len(courses):
-                colors.print_success("🎉 全部课程观看完成！")
+                colors.print_success("🎉  全部课程观看完成！")
                 colors.print_success(f"完成课程数: {len(self.progress.get('completed_courses', []))} / {len(courses)}")
 
         except KeyboardInterrupt:
@@ -364,11 +364,11 @@ class CourseWatcher:
 
 if __name__ == '__main__':
     colors.print_info("使用说明")
-    colors.print_info("1️⃣ 确保已经运行 login.py 完成登录")
-    colors.print_info("2️⃣ 确保服务器正在运行 (python selenium_server.py)")
-    colors.print_info("3️⃣ 运行此脚本开始自动观看")
-    colors.print_info("4️⃣ 按 Ctrl+C 可以随时中断，进度会自动保存")
-    colors.print_info("5️⃣ 下次运行会自动从上次的位置继续")
+    colors.print_info("1️⃣  确保已经运行 login.py 完成登录")
+    colors.print_info("2️⃣  确保服务器正在运行 (python selenium_server.py)")
+    colors.print_info("3️⃣  运行此脚本开始自动观看")
+    colors.print_info("4️⃣  按 Ctrl+C 可以随时中断，进度会自动保存")
+    colors.print_info("5️⃣  下次运行会自动从上次的位置继续")
 
     watcher = CourseWatcher()
     watcher.run()
