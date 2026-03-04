@@ -5,7 +5,6 @@ import json
 import time
 import os
 import random
-import shutil
 from datetime import datetime, timedelta
 import requests
 
@@ -288,13 +287,9 @@ class CourseWatcher:
 
                     remaining = total_seconds - current_time
 
-                    # 动态适配终端宽度，每次刷新重新测量
-                    # 固定文字部分约 30 列（含时间、剩余），剩余给进度条
-                    term_cols = shutil.get_terminal_size(fallback=(80, 24)).columns
-                    suffix = f" │ {format_time(current_time)}/{format_time(total_seconds)} 剩余:{format_time(remaining)} "
-                    bar_width = max(10, term_cols - len(suffix) - 10)  # [bar] XX% + 前缀空格
-                    bar = progress_bar(current_time, total_seconds, width=bar_width)
-                    # \033[2K 清除整行，\r 回到行首，避免调整窗口宽度后残留字符
+                    # \033[2K 清除整行，\r 退到行首，避免残影（宽度变化时也安全）
+                    bar = progress_bar(current_time, total_seconds, width=20)
+                    suffix = f" │ {format_time(current_time)}/{format_time(total_seconds)} 剩余:{format_time(remaining)}"
                     print(f"\033[2K\r {bar}{suffix}", end='', flush=True)
 
                     # 保存进度
