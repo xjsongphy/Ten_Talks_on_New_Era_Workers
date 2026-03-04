@@ -121,18 +121,6 @@ class CourseWatcher:
 
         courses = result.get('data', {}).get('result', [])
         colors.print_success(f"找到 {len(courses)} 个课程")
-        for i, course in enumerate(courses):
-            if i < self.progress['current_course']:
-                status = "✓"
-                title = course.get('title', '')
-            elif i == self.progress['current_course']:
-                status = "▶"
-                title = course.get('title', '')
-            else:
-                status = " "
-                title = course.get('title', '')
-            duration = course.get('duration', '')
-            print(f"  {status}  {i+1:2d}. {title} [{duration}]")
 
         return courses
 
