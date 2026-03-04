@@ -32,7 +32,7 @@ def format_time(seconds):
         secs = int(seconds % 60)
         return f"{hours}小时{mins:02d}分{secs:02d}秒"
 
-def progress_bar(current, total, width=30):
+def progress_bar(current, total, width=20):
     """生成进度条"""
     if total == 0:
         return '█' * width
@@ -288,13 +288,9 @@ class CourseWatcher:
                     remaining = total_seconds - current_time
                     progress_pct = int((current_time / total_seconds) * 100)
 
-                    # 计算预计剩余时间
-                    elapsed_real = int(time.time() - self.video_start_time)
-                    eta_seconds = int(remaining * elapsed_real / current_time) if current_time > 0 else 0
-
                     # 使用 \r 覆盖同一行，实现进度条动画效果
-                    bar = progress_bar(current_time, total_seconds)
-                    status_line = f"\r  {bar} │ {format_time(current_time)} / {format_time(total_seconds)} │ 剩余: {format_time(remaining)} │ ETA: {format_time(eta_seconds)}  "
+                    bar = progress_bar(current_time, total_seconds, width=20)
+                    status_line = f"\r {bar} │ {format_time(current_time)}/{format_time(total_seconds)} 剩余:{format_time(remaining)} "
                     print(status_line, end='', flush=True)
 
                     # 保存进度
