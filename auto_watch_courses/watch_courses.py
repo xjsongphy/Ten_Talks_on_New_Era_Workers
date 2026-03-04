@@ -385,7 +385,7 @@ class CourseWatcher:
                 print(f"{Colors.GREEN}{Colors.BOLD}║{Colors.END}           🎉 全部课程观看完成！🎉            {Colors.GREEN}{Colors.BOLD}║{Colors.END}")
                 print(f"{Colors.GREEN}{Colors.BOLD}╚════════════════════════════════════════════════════════════╝{Colors.END}")
                 print(f"{Colors.BLUE}🕐 完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}{Colors.END}")
-                print(f"{Colors.GREEN}✓ 完成课程数: {len(self.progress.get('completed_courses', []))} / 10{Colors.END}")
+                print(f"{Colors.GREEN}✓ 完成课程数: {len(self.progress.get('completed_courses', []))} / {len(courses)}{Colors.END}")
 
         except KeyboardInterrupt:
             print(f"\n\n{Colors.YELLOW}[中断] 用户手动中断{Colors.END}")
