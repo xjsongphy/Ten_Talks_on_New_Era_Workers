@@ -50,6 +50,7 @@ python main.py
 
 - 进度自动保存至 `watch_progress.json`
 - 中途按 `Ctrl+C` 中断，下次运行从上次位置继续
+- 中断后需手动关闭弹出的 selenium 服务终端窗口，以及 selenium 打开的 Chrome 浏览器
 - 删除 `watch_progress.json` 可从头开始
 
 ## 注意事项
