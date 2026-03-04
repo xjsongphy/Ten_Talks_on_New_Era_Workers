@@ -132,7 +132,7 @@ class CourseWatcher:
                 status = " "
                 title = course.get('title', '')
             duration = course.get('duration', '')
-            print(f"{status} {i+1:2d}. {title} [{duration}]")
+            print(f"  {status}  {i+1:2d}. {title} [{duration}]")
 
         return courses
 
