@@ -33,7 +33,7 @@ def progress_bar(current, total, width=30):
     filled = int(width * current / total)
     bar = '█' * filled + '░' * (width - filled)
     percentage = int(current / total * 100) if total > 0 else 0
-    return f"{colors.Colors.OKCYAN}[{bar}]{colors.colors.Colors.ENDCC} {percentage:>3}%"
+    return f"[{bar}] {percentage:>3}%"
 
 class CourseWatcher:
     def __init__(self):
