@@ -47,6 +47,8 @@ def init_browser():
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        # 浏览器级别静音（不触碰播放器音量键）
+        chrome_options.add_argument('--mute-audio')
         # 添加反后台检测参数
         chrome_options.add_argument('--disable-backgrounding-occluded-windows')
         chrome_options.add_argument('--disable-background-timer-throttling')
