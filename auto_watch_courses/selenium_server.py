@@ -361,6 +361,20 @@ def quit():
         log("浏览器已关闭")
     return jsonify({'success': True})
 
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    """关闭浏览器并退出服务器"""
+    global driver
+    if driver:
+        try:
+            driver.quit()
+        except:
+            pass
+        driver = None
+        log("浏览器已关闭")
+    log("服务器退出")
+    os._exit(0)
+
 if __name__ == '__main__':
     # 清空日志文件
     open(LOG_FILE, 'w').close()

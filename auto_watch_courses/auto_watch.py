@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import subprocess
+import atexit
 
 from . import login
 from . import watch_courses
@@ -19,6 +20,15 @@ def check_server_running():
         return response.status_code == 200
     except:
         return False
+
+def stop_server():
+    """关闭 selenium 服务器（浏览器 + Flask 进程）"""
+    try:
+        import requests
+        requests.post('http://127.0.0.1:5000/shutdown', timeout=5)
+        colors.print_info("selenium 服务器已关闭")
+    except:
+        pass
 
 def start_server():
     """启动Selenium服务器"""
@@ -50,6 +60,9 @@ def main():
             return
     else:
         colors.print_success("服务器运行中")
+
+    # 注册退出钩子，任何退出方式都自动关闭服务器和浏览器
+    atexit.register(stop_server)
 
     colors.print_info("开始登录流程...")
     success = login.do_login()
