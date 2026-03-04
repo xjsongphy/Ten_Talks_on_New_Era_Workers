@@ -54,10 +54,16 @@ def init_browser():
         chrome_options.add_argument('--disable-background-timer-throttling')
         chrome_options.add_argument('--disable-backgrounding-renderer')
         chrome_options.add_argument('--disable-renderer-backgrounding')
+        # 防止窗口弹到前面
+        chrome_options.add_argument('--no-first-run')
+        chrome_options.add_argument('--no-default-browser-check')
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
 
         driver = webdriver.Chrome(options=chrome_options)
+
+        # 让窗口失去焦点，不弹到前面
+        driver.execute_script("window.blur();")
 
         # 注入反后台暂停的脚本到所有新页面
         driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
@@ -107,6 +113,8 @@ def init():
         if url:
             log(f"正在访问URL: {url}")
             driver.get(url)
+            # 让窗口失去焦点，不弹到前面
+            driver.execute_script("window.blur();")
             time.sleep(3)
             save_page_html()
 
@@ -299,6 +307,9 @@ def execute():
                 log(f"切换到窗口 {window_index}")
             else:
                 raise Exception(f"窗口索引 {window_index} 超出范围")
+
+            # 让窗口失去焦点，不弹到前面
+            driver.execute_script("window.blur();")
 
             save_page_html()
             result['data'] = {
