@@ -5,7 +5,7 @@ import json
 import time
 import os
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 import requests
 
 from . import colors
@@ -71,7 +71,7 @@ class CourseWatcher:
         try:
             response = requests.post(f"{SERVER_URL}/execute", json=data, timeout=30)
             result = response.json()
-            if result.get('success') == False:
+            if not result.get('success'):
                 colors.print_error(f"[错误] {result.get('error')}")
                 return None
             return result

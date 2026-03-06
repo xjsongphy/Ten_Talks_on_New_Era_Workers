@@ -18,7 +18,7 @@ def check_server_running():
         import requests
         response = requests.get('http://127.0.0.1:5000/status', timeout=2)
         return response.status_code == 200
-    except:
+    except Exception:
         return False
 
 def stop_server():
@@ -27,7 +27,7 @@ def stop_server():
         import requests
         requests.post('http://127.0.0.1:5000/shutdown', timeout=5)
         colors.print_info("selenium 服务器已关闭")
-    except:
+    except Exception:
         pass
 
 def start_server():

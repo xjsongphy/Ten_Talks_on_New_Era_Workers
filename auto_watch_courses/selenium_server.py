@@ -2,7 +2,6 @@
 Selenium 控制服务器
 在本地运行此服务器，然后发送HTTP请求来控制浏览器
 """
-import json
 import time
 import random
 import os
@@ -10,8 +9,6 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 app = Flask(__name__)
 
@@ -311,7 +308,7 @@ def execute():
             if window_index == -1:
                 # 切换到最新窗口
                 driver.switch_to.window(handles[-1])
-                log(f"切换到最新窗口")
+                log("切换到最新窗口")
             elif 0 <= window_index < len(handles):
                 driver.switch_to.window(handles[window_index])
                 log(f"切换到窗口 {window_index}")
@@ -368,7 +365,7 @@ def shutdown():
     if driver:
         try:
             driver.quit()
-        except:
+        except Exception:
             pass
         driver = None
         log("浏览器已关闭")
